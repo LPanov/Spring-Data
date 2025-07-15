@@ -1,0 +1,6 @@
+Register|email@email.com|passwordPassword1|Luke Skywalker
+Login|email@email.com|passwordPassword1
+Logout
+AddGame|GTA VI|trailer_url|thumbnail_url|134.50|You should play this!
+AllGames
+BuyGame
