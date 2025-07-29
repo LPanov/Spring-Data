@@ -1,4 +1,4 @@
-package sofuni.exam.util;
+package softuni.exam.util;
 
 
 import jakarta.validation.Validation;
