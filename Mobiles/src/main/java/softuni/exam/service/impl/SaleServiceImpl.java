@@ -14,35 +14,35 @@ import softuni.exam.util.ValidationUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
 public class SaleServiceImpl implements SaleService {
-
-    private final ModelMapper modelMapper;
-    private final ValidationUtil validator;
-    private final Gson gson;
-    private final SaleRepository saleRepository;
     private final SellerService sellerService;
+    private final SaleRepository repository;
+    private final Gson gson;
+    private final ValidationUtil validationUtil;
+    private final ModelMapper modelMapper;
 
 
-    public SaleServiceImpl(ModelMapper modelMapper, ValidationUtil validationUtil, Gson gson, SaleRepository saleRepository, SellerService sellerService) {
-        this.modelMapper = modelMapper;
-        this.validator = validationUtil;
-        this.gson = gson;
-        this.saleRepository = saleRepository;
+    public SaleServiceImpl(SellerService sellerService, SaleRepository repository, Gson gson, ValidationUtil validationUtil, ModelMapper modelMapper) {
         this.sellerService = sellerService;
+        this.repository = repository;
+        this.gson = gson;
+        this.validationUtil = validationUtil;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     public boolean areImported() {
-        return saleRepository.count() > 0;
+        return repository.count() > 0;
     }
 
     @Override
     public String readSalesFileContent() throws IOException {
-        Path path = Path.of("src/main/resources/files/json/sales.json");
+        Path path = Paths.get("src/main/resources/files/json/sales.json");
         return Files.readString(path);
     }
 
@@ -61,8 +61,13 @@ public class SaleServiceImpl implements SaleService {
         return sb.toString();
     }
 
+    @Override
+    public Sale getReferencedById(Long id) {
+        return repository.getReferenceById(id);
+    }
+
     private Sale create(SaleInputDto inputDto) {
-        if (!validator.isValid(inputDto)) return null;
+        if (!validationUtil.isValid(inputDto)) return null;
 
         try {
             Sale sale = modelMapper.map(inputDto, Sale.class);
@@ -74,16 +79,11 @@ public class SaleServiceImpl implements SaleService {
                 sale.setSeller(seller);
             }
 
-            saleRepository.save(sale);
+            repository.save(sale);
 
             return sale;
         } catch (Exception e) {
             return null;
         }
-    }
-
-    @Override
-    public Sale getReferencedById(Long id) {
-        return saleRepository.getReferenceById(id);
     }
 }
